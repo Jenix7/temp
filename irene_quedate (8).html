@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actualizando sistema...</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Fredoka+One&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#000; font-family:'Share Tech Mono',monospace; overflow:hidden; cursor:none; user-select:none; }
+
+  /* ===== INTRO VIRUS ===== */
+  #intro {
+    position:fixed; inset:0; background:#000; z-index:500000;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:#ff2200;
+  }
+  #intro::after {
+    content:''; position:absolute; inset:0;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.18) 2px,rgba(0,0,0,0.18) 4px);
+    pointer-events:none;
+  }
+  .skull { font-size:90px; margin-bottom:16px; animation:skullPulse 0.4s infinite alternate; }
+  @keyframes skullPulse {
+    from { transform:scale(1);   filter:drop-shadow(0 0 10px #ff2200); }
+    to   { transform:scale(1.1); filter:drop-shadow(0 0 45px #ff2200); }
+  }
+  #intro h1 {
+    font-size:clamp(28px,6vw,66px); letter-spacing:6px;
+    text-align:center; line-height:1.2;
+    animation:glitchT 0.12s infinite;
+  }
+  @keyframes glitchT {
+    0%   { text-shadow: 2px 0 #ff2200,-2px 0 #00ffff; transform:translate(0); }
+    25%  { text-shadow:-3px 0 #ff2200, 3px 0 #00ffff; transform:translate(2px,-1px); }
+    50%  { text-shadow: 3px 0 #ff2200,-3px 0 #00ffff; transform:translate(-2px,1px); }
+    75%  { text-shadow:-2px 0 #ff2200, 2px 0 #00ffff; transform:translate(1px,0); }
+    100% { text-shadow: 2px 0 #ff2200,-2px 0 #00ffff; transform:translate(0); }
+  }
+  .wbar {
+    margin-top:20px; background:#ff2200; color:#000;
+    font-size:13px; font-weight:bold; letter-spacing:4px; padding:7px 36px;
+    animation:barFlash 0.3s infinite;
+  }
+  @keyframes barFlash { 50%{opacity:.4;} }
+
+  .prog-wrap { margin-top:24px; width:min(560px,90vw); }
+  .prog-label { font-size:13px; color:#ff4422; margin-bottom:6px; letter-spacing:2px; }
+  .prog-bg { width:100%; height:18px; background:#1a0000; border:1px solid #ff2200; }
+  .prog-fill { height:100%; background:linear-gradient(90deg,#ff2200,#ff6600); width:0%; box-shadow:0 0 12px #ff2200; }
+  .prog-count { margin-top:6px; font-size:12px; color:#ff4422; text-align:right; letter-spacing:2px; }
+
+  @keyframes splashPop { from{transform:scale(0);opacity:0;} to{transform:scale(1);opacity:1;} }
+  @keyframes splashGlow {
+    from { text-shadow:0 0 40px #ff006e,0 0 80px #ff006e; }
+    to   { text-shadow:0 0 80px #ff006e,0 0 160px #ff006e,0 0 20px #fff; }
+  }
+
+  /* ===== MATRIX ===== */
+  #matrix { position:fixed; top:0;left:0; width:100%;height:100%; z-index:0; display:none; }
+
+  /* ===== CURSOR ===== */
+  #cursor { position:fixed; width:20px;height:20px; border:2px solid #ff006e; border-radius:50%; pointer-events:none; z-index:99999; transform:translate(-50%,-50%); mix-blend-mode:difference; }
+
+  /* ===== POPUPS ===== */
+  .popup { position:fixed; z-index:1000; border-radius:8px; padding:0; box-shadow:0 0 30px rgba(255,0,110,.6); animation:popIn .3s cubic-bezier(.34,1.56,.64,1); min-width:280px; max-width:380px; cursor:default; overflow:hidden; }
+  @keyframes popIn { from{transform:scale(.5) rotate(-5deg);opacity:0;} to{transform:scale(1) rotate(0);opacity:1;} }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px) rotate(-1deg);} 40%{transform:translateX(8px) rotate(1deg);} 60%{transform:translateX(-5px);} 80%{transform:translateX(5px);} }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 20px rgba(255,0,110,.5);} 50%{box-shadow:0 0 60px rgba(255,0,110,.9),0 0 100px rgba(255,0,110,.4);} }
+  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
+  @keyframes glitch { 0%,100%{transform:translate(0);filter:none;} 20%{transform:translate(-3px,2px);filter:hue-rotate(90deg);} 40%{transform:translate(3px,-2px);filter:hue-rotate(-90deg);} 60%{transform:translate(-2px,-2px);} 80%{transform:translate(2px,2px);filter:hue-rotate(180deg);} }
+  @keyframes blink { 50%{opacity:0;} }
+
+  .popup-windows { background:#c0c0c0; border:2px solid #fff; border-right-color:#666; border-bottom-color:#666; font-family:'Share Tech Mono',monospace; animation:popIn .3s ease,pulse 2s infinite; }
+  .popup-windows .titlebar { background:linear-gradient(90deg,#000080,#1084d0); color:#fff; padding:3px 6px; font-size:12px; display:flex; justify-content:space-between; align-items:center; }
+  .popup-windows .content { padding:20px; font-size:13px; color:#000; display:flex; gap:12px; align-items:flex-start; }
+  .popup-windows .icon { font-size:32px; }
+  .popup-windows .wbtn { margin:0 10px 10px; background:#c0c0c0; border:2px solid #fff; border-right-color:#666; border-bottom-color:#666; padding:4px 20px; cursor:pointer; font-family:inherit; font-size:12px; }
+
+  .popup-terminal { background:#0d0d0d; border:1px solid #00ff41; color:#00ff41; font-size:13px; animation:popIn .3s ease,pulse 1.5s infinite; }
+  .popup-terminal .titlebar { background:#00ff41; color:#000; padding:4px 10px; font-size:12px; font-weight:bold; }
+  .popup-terminal .content { padding:15px; line-height:1.8; }
+  .popup-terminal .cb { animation:blink .7s infinite; }
+
+  .popup-retro { background:#1a0030; border:3px solid #a020f0; color:#a020f0; font-family:'Share Tech Mono',monospace; text-align:center; animation:popIn .3s ease,glitch 2s infinite; }
+  .popup-retro .titlebar { background:#a020f0; color:#fff; padding:5px; font-size:11px; letter-spacing:3px; }
+  .popup-retro .content { padding:20px; font-size:16px; text-shadow:0 0 10px #a020f0; letter-spacing:2px; }
+
+  .popup-sticky { background:#fff176; color:#333; font-family:'Fredoka One',cursive; border:none; box-shadow:3px 3px 10px rgba(0,0,0,.4); animation:popIn .3s ease,float 4s ease-in-out infinite; }
+  .popup-sticky .content { padding:20px; font-size:22px; text-align:center; line-height:1.5; }
+
+  .popup-alert { background:#1a0000; border:2px solid #f00; color:#f00; animation:popIn .2s ease,shake .5s infinite; }
+  .popup-alert .titlebar { background:#f00; color:#fff; padding:5px 10px; font-size:12px; font-weight:bold; display:flex; justify-content:space-between; }
+  .popup-alert .content { padding:15px; font-size:14px; line-height:1.8; }
+
+  .popup-big { min-width:450px; max-width:600px; background:radial-gradient(ellipse at center,#0d0d2e 0%,#000 100%); border:2px solid #ff006e; color:#fff; text-align:center; animation:popIn .4s ease,pulse 2s infinite; }
+  .popup-big .content { padding:40px 30px; font-size:36px; font-family:'Fredoka One',cursive; color:#ff006e; text-shadow:0 0 20px #ff006e; line-height:1.3; }
+  .popup-big .subtitle { font-size:16px; color:#ccc; margin-top:10px; font-family:'Share Tech Mono',monospace; }
+
+  .popup-friend { background:linear-gradient(135deg,#1a1a2e,#16213e); border:2px solid #00d4ff; color:#00d4ff; font-family:'Fredoka One',cursive; text-align:center; animation:popIn .3s ease,float 3s ease-in-out infinite; }
+  .popup-friend .content { padding:25px 20px; font-size:24px; line-height:1.5; }
+  .popup-friend .stars { font-size:20px; display:block; margin-top:8px; animation:blink 1.5s infinite; }
+
+  .close-x { background:none; border:none; cursor:pointer; font-weight:bold; padding:0 4px; line-height:1; color:inherit; font-size:14px; }
+  .fake-progress { width:100%; height:8px; background:#333; margin-top:8px; border-radius:4px; overflow:hidden; }
+  .fake-progress-bar { height:100%; background:linear-gradient(90deg,#00ff41,#ff006e); animation:progressAnim 2s ease-in-out infinite; }
+  @keyframes progressAnim { 0%{width:5%;} 50%{width:80%;} 60%{width:40%;} 100%{width:95%;} }
+
+  #screensaver { display:none; position:fixed; width:65px;height:65px; background:radial-gradient(circle,#ff006e,#c2006e); border-radius:50%; z-index:500; pointer-events:none; align-items:center; justify-content:center; font-size:9px; color:#fff; text-align:center; font-weight:bold; box-shadow:0 0 20px #ff006e; line-height:1.2; }
+  #screensaver.on { display:flex; }
+
+  #secret-btn { position:fixed; bottom:5px; right:5px; width:15px;height:15px; background:transparent; border:none; cursor:pointer; z-index:99999; opacity:0; }
+
+  #end-screen { display:none; position:fixed; inset:0; background:radial-gradient(ellipse at center,#0a0a1a 0%,#000 100%); z-index:100000; justify-content:center; align-items:center; flex-direction:column; text-align:center; color:#fff; font-family:'Fredoka One',cursive; }
+  #end-screen.show { display:flex; animation:fadeInE 1s ease; }
+  @keyframes fadeInE { from{opacity:0;transform:scale(.8);} to{opacity:1;transform:scale(1);} }
+  #end-screen h1 { font-size:clamp(50px,10vw,90px); color:#ff006e; text-shadow:0 0 40px #ff006e,0 0 80px #ff006e; animation:pulse 1s infinite; line-height:1; }
+  #end-screen p  { font-size:clamp(16px,3vw,26px); color:#ccc; margin-top:20px; max-width:500px; line-height:1.6; }
+  #end-screen .emoji-big { font-size:70px; margin-bottom:10px; animation:float 2s ease-in-out infinite; }
+  #end-screen .from { font-size:16px; color:#555; margin-top:30px; font-family:'Share Tech Mono',monospace; }
+</style>
+</head>
+<body>
+
+<div id="intro">
+  <div class="skull">💀</div>
+  <h1>¡¡VIRUS DETECTADO!!</h1>
+  <div class="wbar">⚠ AMENAZA CRÍTICA — NIVEL MÁXIMO ⚠</div>
+  <div class="prog-wrap">
+    <div class="prog-label">ANALIZANDO SISTEMA... <span id="pct">0</span>%</div>
+    <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="prog-count" id="prog-count">Archivos infectados: 0</div>
+  </div>
+</div>
+
+<!-- SPLASH: IRENE QUEDATE EN GRANDE -->
+<div id="splash" style="display:none;position:fixed;inset:0;background:#000;z-index:400000;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:'Fredoka One',cursive;">
+  <div style="font-size:clamp(60px,14vw,160px);color:#ff006e;text-shadow:0 0 60px #ff006e,0 0 120px #ff006e;animation:splashPop .4s cubic-bezier(.34,1.56,.64,1),splashGlow 1s infinite alternate;line-height:1;letter-spacing:2px;">
+    IRENE<br>QUÉDATE!
+  </div>
+</div>
+
+<canvas id="matrix"></canvas>
+<div id="cursor"></div>
+<div id="screensaver">IRENE<br>QUÉDATE</div>
+<button id="secret-btn" onclick="deactivate()"></button>
+<div id="end-screen">
+  <div class="emoji-big">🎉</div>
+  <h1>¡IRENE QUÉDATE!</h1>
+  <p>Era una broma, ¡pero el mensaje es real!<br>La empresa te necesita. ¡No te vayas!</p>
+  <div class="from">— tus compañeros, siempre —</div>
+</div>
+<div id="popup-container"></div>
+
+<script>
+/* ===== INTRO: dura exactamente 1.5 segundos ===== */
+const fillEl = document.getElementById('prog-fill');
+const pctEl  = document.getElementById('pct');
+const cntEl  = document.getElementById('prog-count');
+
+const TOTAL_MS = 350;
+const TICK_MS  = 10;
+const STEPS    = TOTAL_MS / TICK_MS;
+let step = 0, fileCount = 0;
+
+const progTimer = setInterval(() => {
+  step++;
+  // curva ease-in para que parezca que arranca y se dispara
+  const t = step / STEPS;
+  const eased = t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out
+  const pct = Math.min(Math.floor(eased * 100), 100);
+
+  fillEl.style.width = pct + '%';
+  pctEl.textContent  = pct;
+  fileCount += Math.floor(Math.random()*60+20);
+  cntEl.textContent  = 'Archivos infectados: ' + fileCount.toLocaleString();
+
+  if (step >= STEPS) {
+    clearInterval(progTimer);
+    setTimeout(startPrank, 200); // pequeña pausa dramática y arranca
+  }
+}, TICK_MS);
+
+/* ===== ARRANCAR BROMA ===== */
+function startPrank() {
+  const intro = document.getElementById('intro');
+  intro.style.transition = 'opacity .2s';
+  intro.style.opacity = '0';
+  setTimeout(() => {
+    intro.style.display = 'none';
+    showSplash();
+  }, 200);
+}
+
+function showSplash() {
+  const splash = document.getElementById('splash');
+  splash.style.display = 'flex';
+  // after 2s launch popups behind it, then fade splash
+  setTimeout(() => {
+    document.getElementById('matrix').style.display = 'block';
+    document.getElementById('screensaver').classList.add('on');
+    initMatrix();
+    moveBall();
+    startSpawning();
+  }, 500);
+  setTimeout(() => {
+    splash.style.transition = 'opacity .2s';
+    splash.style.opacity = '0';
+    setTimeout(() => splash.style.display = 'none', 200);
+  }, 600);
+}
+
+/* ===== MATRIX ===== */
+const canvas = document.getElementById('matrix');
+const ctx    = canvas.getContext('2d');
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+const cols  = Math.floor(canvas.width/20);
+const drops = Array(cols).fill(1);
+const CHARS = 'IRENEQUEDATEIRENE0101QUEDATE'.split('');
+function drawMatrix() {
+  ctx.fillStyle='rgba(0,0,0,0.04)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#ff006e'; ctx.font='16px Share Tech Mono';
+  drops.forEach((y,i)=>{
+    ctx.fillText(CHARS[Math.floor(Math.random()*CHARS.length)], i*20, y*20);
+    if(y*20>canvas.height && Math.random()>.975) drops[i]=0;
+    drops[i]++;
+  });
+}
+function initMatrix(){ setInterval(drawMatrix,50); }
+
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => { cursor.style.left=e.clientX+'px'; cursor.style.top=e.clientY+'px'; });
+
+const ball = document.getElementById('screensaver');
+let bx=100, by=100, vx=2.5, vy=2;
+function moveBall(){
+  bx+=vx; by+=vy;
+  if(bx<=0||bx>=window.innerWidth-70)  vx*=-1;
+  if(by<=0||by>=window.innerHeight-70) vy*=-1;
+  ball.style.left=bx+'px'; ball.style.top=by+'px';
+  requestAnimationFrame(moveBall);
+}
+
+let active = true;
+const MSGS = ['IRENE QUÉDATE','IRENE QUÉDATE','IRENE QUÉDATE','IRENE QUÉDATE','IRENE QUÉDATE',
+  'IRENE QUÉDATE!','LA EMPRESA NO SOBREVIVE SIN TI',
+  '¡¡IRENE!! TE NECESITAMOS AQUÍ','QUÉDATE IRENE',
+  'NO DEJES LA EMPRESA IRENE','IRENE.EXE QUÉDATE',
+  '>> IRENE: QUÉDATE <<','ERROR 404: IRENE NO SE PUEDE IR',
+  'IRENE QUÉDATE, PORFA, PORFAAAA','IRENE NO NOS ABANDONES',
+  'LA EMPRESA TE NECESITA IRENE','SIN IRENE LA EMPRESA CIERRA',
+];
+const rMsg = () => MSGS[Math.floor(Math.random()*MSGS.length)];
+const rPos = (w,h) => ({ x:Math.random()*(window.innerWidth-w-20)+10, y:Math.random()*(window.innerHeight-h-20)+10 });
+
+function hookClose(popup){
+  popup.querySelectorAll('.fake-close,.close-x').forEach(b=>{
+    b.addEventListener('click',()=>{
+      popup.style.animation='shake .4s ease';
+      setTimeout(()=>{ popup.remove(); spawnPopup(); spawnPopup(); }, 250);
+    });
+  });
+}
+function draggable(el){
+  let dr=false,sx,sy,ox,oy;
+  const h=el.querySelector('.titlebar')||el;
+  h.style.cursor='move';
+  h.addEventListener('mousedown',e=>{ dr=true; sx=e.clientX; sy=e.clientY; ox=parseInt(el.style.left); oy=parseInt(el.style.top); e.preventDefault(); });
+  document.addEventListener('mousemove',e=>{ if(!dr)return; el.style.left=(ox+e.clientX-sx)+'px'; el.style.top=(oy+e.clientY-sy)+'px'; });
+  document.addEventListener('mouseup',()=>dr=false);
+}
+
+const tWin = m => { const{x,y}=rPos(320,160); return `<div class="popup popup-windows" style="left:${x}px;top:${y}px"><div class="titlebar"><span>⚠️ Mensaje del sistema</span><button class="close-x fake-close">✕</button></div><div class="content"><span class="icon">⚠️</span><div><strong>${m}</strong><br><br>Windows ha detectado que Irene podría irse. Acción requerida.<div class="fake-progress"><div class="fake-progress-bar"></div></div><small>Procesando solicitud...</small></div></div><div style="text-align:right;padding:0 10px 10px"><button class="wbtn fake-close">Aceptar</button><button class="wbtn fake-close">Cancelar</button></div></div>`; };
+const tTerm = m => { const{x,y}=rPos(380,190); return `<div class="popup popup-terminal" style="left:${x}px;top:${y}px"><div class="titlebar">bash — irene@quedateporfavor: ~</div><div class="content">$ quedate.sh --usuario=irene<br>> Detectado: intento de irse<br>> ${m}<br>> Status: <span style="color:#ff006e">URGENTE</span><br><span class="cb">█</span></div></div>`; };
+const tRetro = m => { const{x,y}=rPos(310,160); return `<div class="popup popup-retro" style="left:${x}px;top:${y}px"><div class="titlebar">>>> ALERTA MÁXIMA <<<</div><div class="content">★ ${m} ★<br><br><span style="font-size:12px;letter-spacing:1px">SISTEMA: NO_PUEDES_IRTE.EXE<br>NIVEL: CRÍTICO</span></div></div>`; };
+const tSticky = m => { const{x,y}=rPos(240,140); const r=(Math.random()-.5)*10; return `<div class="popup popup-sticky" style="left:${x}px;top:${y}px;transform:rotate(${r}deg)"><div class="content">📌 ${m}<br><br><small style="font-size:14px">— tus compañeros</small></div></div>`; };
+const tAlert = m => { const{x,y}=rPos(320,150); return `<div class="popup popup-alert" style="left:${x}px;top:${y}px"><div class="titlebar"><span>🚨 ALERTA CRÍTICA 🚨</span><button class="close-x fake-close">✕</button></div><div class="content">ERROR FATAL: Irene intentando irse.<br><br><span style="font-size:17px;color:#ff4444">⛔ ${m} ⛔</span></div></div>`; };
+const tBig = m => { const{x,y}=rPos(500,220); return `<div class="popup popup-big" style="left:${x}px;top:${y}px"><div class="content">${m}<br><span class="subtitle">— el sistema lo exige —</span></div></div>`; };
+const tFriend = m => { const{x,y}=rPos(300,160); return `<div class="popup popup-friend" style="left:${x}px;top:${y}px"><div class="content">${m}<span class="stars">⭐ LA EMPRESA TE NECESITA ⭐</span></div></div>`; };
+
+const GENS = [tBig, tBig, tBig, tWin, tTerm, tRetro, tSticky, tAlert, tBig, tFriend];
+
+function spawnPopup(){
+  if(!active) return;
+  const wrap=document.createElement('div');
+  wrap.innerHTML=GENS[Math.floor(Math.random()*GENS.length)](rMsg());
+  const popup=wrap.firstElementChild;
+  document.getElementById('popup-container').appendChild(popup);
+  hookClose(popup); draggable(popup);
+  const life=5000+Math.random()*8000;
+  setTimeout(()=>{ if(popup.parentNode&&active){ popup.style.transition='opacity .3s'; popup.style.opacity='0'; setTimeout(()=>{ popup.remove(); spawnPopup(); },300); } }, life);
+}
+
+function startSpawning(){
+  for(let i=0;i<4;i++) setTimeout(spawnPopup, i*300);
+  setInterval(()=>{ if(!active)return; if(document.querySelectorAll('.popup').length<18) spawnPopup(); }, 800);
+  setInterval(()=>{ if(!active)return; spawnPopup(); setTimeout(spawnPopup,200); setTimeout(spawnPopup,400); }, 6000);
+}
+
+function deactivate(){
+  active=false;
+  document.querySelectorAll('.popup').forEach(p=>p.remove());
+  const s=document.getElementById('screensaver'); if(s)s.remove();
+  canvas.style.display='none';
+  document.getElementById('end-screen').classList.add('show');
+}
+
+document.addEventListener('contextmenu', e=>e.preventDefault());
+window.addEventListener('resize', ()=>{ canvas.width=window.innerWidth; canvas.height=window.innerHeight; });
+</script>
+</body>
+</html>
